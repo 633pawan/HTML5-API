@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang='en' ng-app>
+  <head>
+   <title>MapQuest</title>
+
+  <script src="js/angular.js"></script>
+  <script>
+    function mapQuestControler($scope ,$http) {
+      
+      $scope.distance = "0m";
+      $scope.totalTime = "00:00:00";
+      $scope.url = "https://angularjs.org/img/AngularJS-small.png";
+      $scope.from = "Boston, MA";
+      $scope.to = "Cambridge, MA";
+      $scope.vals = [];
+      
+      $scope.getDirections = function() {
+        
+        var httpRequest = $http({
+            method: 'GET',
+            url: 'http://open.mapquestapi.com/directions/v2/route?key=Fmjtd%7Cluu821u7nd%2Caa%3Do5-942whf&from='+ encodeURI($scope.from) +'&to='+ encodeURI($scope.to),
+            data: null
+
+        }).success(function(data, status) {
+            //console.log(data);
+            $scope.totalTime = data.route.formattedTime;
+            $scope.distance = data.route.distance + "m";
+            $scope.vals = [];
+            var mlist = data.route.legs[0].maneuvers;
+            //console.log(mlist);
+            
+            for( var i =0; i < mlist.length; i++)
+            {
+              $scope.vals.push([ mlist[i].iconUrl, 
+                                  mlist[i].mapUrl,
+                                  mlist[i].narrative, 
+                                  mlist[i].distance + "m" ]);
+            }
+                                    
+              
+        });
+
+    };
+
+    }
+  </script>
+  <link rel="stylesheet" href="css/HW6.css">
+  </head>
+
+  <body ng-controller="mapQuestControler" ng-init="getDirections()">
+    <h1>MapQuest</h1>
+    <p>
+     <input ng-model="from" >
+     <input ng-model="to" >    
+     <button ng-click="getDirections()"> Get Directions </button>
+     </p>
+
+    <table>
+      
+      <thead>
+        <tr>
+            <th colspan=4>Distance: {{ distance }} - Time: {{ totalTime }}</th>           
+            
+        </tr>
+      </thead>
+      <tbody ng-repeat="val in vals">
+        <tr ng-class-odd="'odd'" ng-class-even="'even'">
+            <td><img ng-src="{{val[0]}}"/></td>
+            <td>{{$index +1}}.</td>
+            <td><a ng-href="{{val[1]}}" target="_blank">{{val[2]}}</a></td>
+            <td>{{val[3]}}</td>
+        </tr>
+      </tbody>      
+    </table>
+  </body>
+</html>
+
+
